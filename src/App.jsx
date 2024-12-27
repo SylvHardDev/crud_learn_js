@@ -1,35 +1,78 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [data, setData] = useState([]); // Stockage local des données
+  const [form, setForm] = useState({ id: "", name: "" }); // Formulaire
+  const [isEditing, setIsEditing] = useState(false); // Mode édition
+
+  // Gestion du formulaire
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  // Ajouter un nouvel élément
+  const handleAdd = () => {
+    if (form.name) {
+      setData([...data, { id: Date.now(), name: form.name }]);
+      setForm({ id: "", name: "" });
+    }
+  };
+
+  // Supprimer un élément
+  const handleDelete = (id) => {
+    setData(data.filter((item) => item.id !== id));
+  };
+
+  // Activer le mode édition
+  const handleEdit = (item) => {
+    setForm(item);
+    setIsEditing(true);
+  };
+
+  // Mettre à jour un élément
+  const handleUpdate = () => {
+    setData(
+      data.map((item) =>
+        item.id === form.id ? { ...item, name: form.name } : item
+      )
+    );
+    setForm({ id: "", name: "" });
+    setIsEditing(false);
+  };
 
   return (
-    <>
+    <div style={{ padding: "20px" }}>
+      <h1>CRUD avec ReactJS (sans backend)</h1>
+
+      {/* Formulaire */}
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <input
+          type="text"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Entrez un nom"
+        />
+        {!isEditing ? (
+          <button onClick={handleAdd}>Ajouter</button>
+        ) : (
+          <button onClick={handleUpdate}>Mettre à jour</button>
+        )}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+
+      {/* Liste des données */}
+      <ul>
+        {data.map((item) => (
+          <li key={item.id}>
+            {item.name}
+            <button onClick={() => handleEdit(item)}>Modifier</button>
+            <button onClick={() => handleDelete(item.id)}>Supprimer</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
-export default App
+export default App;
